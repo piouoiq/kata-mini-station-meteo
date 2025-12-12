@@ -7,7 +7,7 @@ let detailSection = document.getElementById("details");
 
 submitButton.addEventListener("click", () => {
   let cityName = inputCity.value;
-  cityOutput.textContent = cityName;
+
   fetchCoordinates(cityName);
 });
 
@@ -23,11 +23,21 @@ async function fetchCoordinates(cityName) {
     const response = await fetch(url + paramCoord.toString());
     const data = await response.json();
     console.log(data);
-
-    let lat = data[0].lat;
-    let lon = data[0].lon;
-    gpsOutput.textContent = `Latitude: ${lat}, Longitude: ${lon}`;
-    fetchWeather(lat, lon);
+    if (data.length === 0) {
+      cityOutput.textContent = "Ville non trouvée.";
+      gpsOutput.textContent = "Veuillez vérifier le nom de la ville.";
+      temperatureOutput.style.display = "none";
+      detailSection.style.display = "none";
+      return;
+    } else {
+      cityOutput.textContent = cityName;
+      let lat = data[0].lat;
+      let lon = data[0].lon;
+      temperatureOutput.style.display = "block";
+      detailSection.style.display = "block";
+      gpsOutput.textContent = `Latitude: ${lat}, Longitude: ${lon}`;
+      fetchWeather(lat, lon);
+    }
   } catch (error) {
     gpsOutput.innerText = "Erreur de récupération des coordonnées.";
   }
@@ -50,6 +60,7 @@ async function fetchWeather(lat, lon) {
     temperatureOutput.textContent = `${temperature}°C`;
     detailSection.innerText = "Temperature actuelle";
   } catch (error) {
-    console.error("Error fetching weather data:", error);
+    temperatureOutput.textContent =
+      " Erreur de récupération de la temperature.";
   }
 }
